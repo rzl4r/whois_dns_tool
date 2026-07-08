@@ -72,8 +72,28 @@ export default function App() {
         },
         body: JSON.stringify({ target: domainToScan })
       });
-
-      const data = await response.json();
+      let data: any;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        let errMsg = text;
+        if (text.includes("<html") || text.includes("<body")) {
+          const titleMatch = text.match(/<title>([\s\S]*?)<\/title>/i);
+          const bodyHeadingMatch = text.match(/<h1>([\s\S]*?)<\/h1>/i) || text.match(/<h2>([\s\S]*?)<\/h2>/i);
+          if (titleMatch && titleMatch[1]) {
+            errMsg = `Server Error: ${titleMatch[1].trim()}`;
+          } else if (bodyHeadingMatch && bodyHeadingMatch[1]) {
+            errMsg = `Server Error: ${bodyHeadingMatch[1].trim()}`;
+          } else {
+            errMsg = `The server returned an unexpected web page response (Status: ${response.status})`;
+          }
+        } else {
+          errMsg = text.trim() || `Server error (Status: ${response.status})`;
+        }
+        throw new Error(errMsg);
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to scan target domain.");
