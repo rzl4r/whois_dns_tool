@@ -1,0 +1,6 @@
+{
+  "name": "WHOIS & DNS Analyzer",
+  "description": "Real-time domain reconnaissance tool for WHOIS, DNS record lookups, IP geolocation, port scanning, SSL auditing, and security compliance analyses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
